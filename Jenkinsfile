@@ -1,5 +1,5 @@
 pipeline {
-    agent any  // Use a generic agent (does not need Docker)
+    agent any  // Use a generic agent
 
     environment {
         IMAGE_NAME = 'bhonebhone/yt-vd'
@@ -26,9 +26,14 @@ pipeline {
         stage('Install Python Dependencies') {
             steps {
                 script {
-                    // Ensure pip is installed without sudo
-                    sh 'python3 -m ensurepip --upgrade' // Install pip if not installed
-                    sh 'pip3 install -r requirements.txt' // Install Python dependencies
+                    // Install pip if not installed (using get-pip.py)
+                    sh '''
+                        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+                        python3 get-pip.py --user
+                        rm get-pip.py
+                    '''
+                    // Install Python dependencies
+                    sh 'pip3 install -r requirements.txt'
                 }
             }
         }
@@ -53,7 +58,7 @@ pipeline {
 
         stage('Update YAML and Push to GitHub (Trigger ArgoCD)') {
             steps {
-                withCredentials([string(credentialsId: 'eihudevops', variable: 'EIHU_TOKEN')]) {
+                withCredentials([string(credentialsId: 'eihudevops', variable: 'GITHUB_TOKEN')]) {
                     sh '''
                         sed -i "s|image:.*|image: $FULL_IMAGE|" k8s/deployment.yaml
 
@@ -63,7 +68,7 @@ pipeline {
                         git add k8s/deployment.yaml
                         git commit -m "Update image to $FULL_IMAGE" || echo "No changes to commit"
                         
-                        git remote set-url origin https://$EIHU_TOKEN@github.com/einhudevops/youtube-video-crawler.git
+                        git remote set-url origin https://$GITHUB_TOKEN@github.com/einhudevops/youtube-video-crawler.git
                         git push origin HEAD:main
                     '''
                 }
