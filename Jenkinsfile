@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.9' // Use official Python image with Python 3.9
-            label 'python-agent'
-        }
-    }
+    agent any  // Use a generic agent
 
     environment {
         IMAGE_NAME = 'bhonebhone/yt-vd'
@@ -30,7 +25,11 @@ pipeline {
 
         stage('Install Python Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt' // Install Python dependencies
+                script {
+                    // Ensure pip is installed without sudo
+                    sh 'python3 -m ensurepip --upgrade' // Install pip if not installed
+                    sh 'pip3 install -r requirements.txt' // Install Python dependencies
+                }
             }
         }
 
