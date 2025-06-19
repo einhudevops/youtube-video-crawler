@@ -23,15 +23,15 @@ pipeline {
             }
         }
 
-        stage('Install Node.js Dependencies') {
+        stage('Install Python Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'pip install -r requirements.txt' // Install Python dependencies
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'npm test || true' // allow build to continue even if no tests
+                sh 'pytest || true' // Run tests using pytest, continue even if tests fail
             }
         }
 
@@ -40,8 +40,8 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
                     sh '''
                         echo "$REG_PASS" | sudo -S buildah login -u "$REG_USER" --password-stdin docker.io
-                        sudo buildah bud -t $FULL_IMAGE .
-                        sudo buildah push $FULL_IMAGE
+                        sudo buildah bud -t $FULL_IMAGE .  // Build the Docker image
+                        sudo buildah push $FULL_IMAGE // Push the image to Docker Hub
                     '''
                 }
             }
