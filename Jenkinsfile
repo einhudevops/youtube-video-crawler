@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.9' // Use official Python image with Python 3.9
+            label 'python-agent'
+        }
+    }
 
     environment {
         IMAGE_NAME = 'bhonebhone/yt-vd'
@@ -25,14 +30,7 @@ pipeline {
 
         stage('Install Python Dependencies') {
             steps {
-                script {
-                    // Install Python and pip if they are not installed
-                    sh 'which python3 || sudo apt-get install python3'
-                    sh 'which pip3 || sudo apt-get install python3-pip'
-
-                    // Install Python dependencies
-                    sh 'pip3 install -r requirements.txt'
-                }
+                sh 'pip install -r requirements.txt' // Install Python dependencies
             }
         }
 
@@ -76,7 +74,7 @@ pipeline {
 
     post {
         success {
-            echo '✅ Youtube Video Crawler App Pipeline executed successfully!'
+            echo '✅ CI/CD Pipeline executed successfully!'
         }
         failure {
             echo '❌ Pipeline failed. Check logs for issues.'
