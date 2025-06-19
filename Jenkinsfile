@@ -49,7 +49,7 @@ pipeline {
 
         stage('Update YAML and Push to GitHub (Trigger ArgoCD)') {
             steps {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'eihudevops', variable: 'EIHUDEVOPS')]) {
                     sh '''
                         sed -i "s|image:.*|image: $FULL_IMAGE|" k8s/deployment.yaml
 
@@ -58,7 +58,7 @@ pipeline {
 
                         git add k8s/deployment.yaml
                         git commit -m "Update image to $FULL_IMAGE" || echo "No changes to commit"
-                        git remote set-url origin https://$GITHUB_TOKEN@github.com/einhudevops/youtube-video-crawler.git
+                        git remote set-url origin https://$EIHUDEVOPS@github.com/einhudevops/youtube-video-crawler.git
                         git push origin HEAD:main
                     '''
                 }
