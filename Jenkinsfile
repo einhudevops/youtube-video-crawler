@@ -25,7 +25,14 @@ pipeline {
 
         stage('Install Python Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt' // Install Python dependencies
+                script {
+                    // Install Python and pip if they are not installed
+                    sh 'which python3 || sudo apt-get install python3'
+                    sh 'which pip3 || sudo apt-get install python3-pip'
+
+                    // Install Python dependencies
+                    sh 'pip3 install -r requirements.txt'
+                }
             }
         }
 
@@ -49,7 +56,7 @@ pipeline {
 
         stage('Update YAML and Push to GitHub (Trigger ArgoCD)') {
             steps {
-                withCredentials([string(credentialsId: 'eihudevops', variable: 'GITHUB_TOKEN')]) { // Ensure token is correctly referenced
+                withCredentials([string(credentialsId: 'eihudevops', variable: 'GITHUB_TOKEN')]) {
                     sh '''
                         sed -i "s|image:.*|image: $FULL_IMAGE|" k8s/deployment.yaml
 
@@ -59,7 +66,6 @@ pipeline {
                         git add k8s/deployment.yaml
                         git commit -m "Update image to $FULL_IMAGE" || echo "No changes to commit"
                         
-                        // Make sure to use the GitHub token for authentication
                         git remote set-url origin https://$GITHUB_TOKEN@github.com/einhudevops/youtube-video-crawler.git
                         git push origin HEAD:main
                     '''
@@ -70,7 +76,7 @@ pipeline {
 
     post {
         success {
-            echo '✅ CI/CD Pipeline executed successfully!'
+            echo '✅ Youtube Video Crawler App Pipeline executed successfully!'
         }
         failure {
             echo '❌ Pipeline failed. Check logs for issues.'
