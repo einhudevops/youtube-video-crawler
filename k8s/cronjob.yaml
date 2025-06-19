@@ -1,1 +1,17 @@
-
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: youtube-video-crawler-job
+  namespace: crawler-apps
+spec:
+  schedule: "0 */4 * * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          containers:
+          - name: youtube-video-crawler-job
+            image: bhonebhone/yt-vd:v1.0.1 
+            imagePullPolicy: IfNotPresent
+          restartPolicy: OnFailure
