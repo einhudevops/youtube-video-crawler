@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: youtube-video-crawler-job
-  namespace: crawler-apps
+  namespace: koyenaung
 spec:
   schedule: "0 */4 * * *"
   jobTemplate:
