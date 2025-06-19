@@ -1,6 +1,6 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: crawler-apps
+  name: koyenaung
   labels:
     name: youtube-video-crawler-app
