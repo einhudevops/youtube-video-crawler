@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: youtube-video-crawler-app
-  namespace: crawler-apps
+  namespace: koyenaung
 spec:
   replicas: 1 # Adjust the number of replicas as needed
   selector:
