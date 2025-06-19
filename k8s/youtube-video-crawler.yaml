@@ -1,1 +1,20 @@
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: youtube-video-crawler-app
+  namespace: crawler-apps
+spec:
+  replicas: 1 # Adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: youtube-video-crawler-app
+  template:
+    metadata:
+      labels:
+        app: youtube-video-crawler-app
+    spec:
+      containers:
+      - name: youtube-video-crawler-app
+        image: bhonebhone/yt-vd:v1.0.1
+        ports:
+        - containerPort: 8080
