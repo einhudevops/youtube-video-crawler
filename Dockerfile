@@ -1,6 +1,6 @@
 # Use your custom base image as the base image
-FROM mglue/youtube-base-image:1.0
-
+#FROM mglue/youtube-base-image:1.0
+FROM python:3.12
 # Set the working directory in the container
 WORKDIR /app
 
