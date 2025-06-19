@@ -60,7 +60,7 @@ pipeline {
                         sh 'echo "$REG_PASS" | sudo -S buildah login -u "$REG_USER" --password-stdin docker.io'
 
                         // Build the Docker image with versioned tag
-                        sh "sudo buildah bud -t $FULL_IMAGE ."
+                        sh "sudo buildah bud -t $FULL_IMAGE --build-arg BASE_IMAGE=docker.io/mglue/youtube-base-image:1.0 ."
 
                         // Push the image with the versioned tag
                         sh "sudo buildah push $FULL_IMAGE"
