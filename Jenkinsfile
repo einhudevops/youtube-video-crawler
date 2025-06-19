@@ -26,21 +26,17 @@ pipeline {
         stage('Install Python Dependencies') {
             steps {
                 script {
-                    // Install pip if not installed (using get-pip.py)
-                    sh '''
-                        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-                        python3 get-pip.py --user
-                        rm get-pip.py
-                    '''
-                    // Install Python dependencies
-                    sh 'pip3 install -r requirements.txt'
+                    // Create a Python virtual environment
+                    sh 'python3 -m venv venv'  // Create virtual environment
+                    sh '. venv/bin/activate && pip install --upgrade pip'  // Activate and upgrade pip
+                    sh '. venv/bin/activate && pip install -r requirements.txt'  // Install dependencies
                 }
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest || true' // Run tests using pytest, continue even if tests fail
+                sh '. venv/bin/activate && pytest || true'  // Run tests inside the virtual environment
             }
         }
 
