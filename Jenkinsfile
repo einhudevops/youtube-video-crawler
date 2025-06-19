@@ -26,12 +26,7 @@ pipeline {
         stage('Install Python Dependencies') {
             steps {
                 script {
-                    // Install python3-venv if it is not already installed (requires sudo privileges)
-                    sh '''
-                        sudo apt-get update
-                        sudo apt-get install -y python3-venv
-                    '''
-                    // Create a Python virtual environment
+                    // Create a Python virtual environment without sudo
                     sh 'python3 -m venv venv'  // Create virtual environment
                     sh '. venv/bin/activate && pip install --upgrade pip'  // Activate and upgrade pip
                     sh '. venv/bin/activate && pip install -r requirements.txt'  // Install dependencies
