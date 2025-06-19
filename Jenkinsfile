@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'bhonebhone/yt-vd'
         K8S_NAMESPACE = "koyenaung"
+        VERSION_FILE = 'version.txt'  // File to track versions
     }
 
     stages {
@@ -16,9 +17,20 @@ pipeline {
         stage('Set Image Tag') {
             steps {
                 script {
-                    def commit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-                    env.IMAGE_TAG = commit
-                    env.FULL_IMAGE = "${IMAGE_NAME}:${commit}"
+                    // Read the current version from the file, increment it, and store it back
+                    def version = 0
+                    if (fileExists(VERSION_FILE)) {
+                        version = readFile(VERSION_FILE).trim().toInteger()
+                    }
+                    version++
+                    
+                    // Write the new version back to the file
+                    writeFile file: VERSION_FILE, text: "$version"
+                    
+                    // Set the image tag to the new version
+                    env.IMAGE_TAG = "v${version}"
+                    env.FULL_IMAGE = "${IMAGE_NAME}:${env.IMAGE_TAG}"
+                    echo "New image version: ${env.IMAGE_TAG}"
                 }
             }
         }
@@ -43,11 +55,16 @@ pipeline {
         stage('Build and Push Image (Buildah)') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
-                    sh '''
-                        echo "$REG_PASS" | sudo -S buildah login -u "$REG_USER" --password-stdin docker.io
-                        sudo buildah bud -t $FULL_IMAGE .  // Build the Docker image
-                        sudo buildah push $FULL_IMAGE // Push the image to Docker Hub
-                    '''
+                    script {
+                        // Log in to Docker Hub
+                        sh 'echo "$REG_PASS" | sudo -S buildah login -u "$REG_USER" --password-stdin docker.io'
+
+                        // Build the Docker image with versioned tag
+                        sh "sudo buildah bud -t $FULL_IMAGE ."
+
+                        // Push the image with the versioned tag
+                        sh "sudo buildah push $FULL_IMAGE"
+                    }
                 }
             }
         }
